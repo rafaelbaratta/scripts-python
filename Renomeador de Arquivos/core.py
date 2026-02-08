@@ -1,3 +1,4 @@
+import errno
 import os
 from pathlib import Path
 
@@ -24,14 +25,53 @@ class Core:
             self.gui.suffix_entry,
         ]
 
+    # ========== PATH/DIRECTORY FUNCTIONS ==========
+
     def get_path(self):
         directory_path = filedialog.askdirectory()
         self.gui.path_entry.delete(0, "end")
         self.gui.path_entry.insert(0, directory_path)
 
+    def get_directory(self):
+        data = self.gui.path_entry.get()
+
+        if not data:
+            CTkMessagebox(
+                title="Info!",
+                message="Não deixe o caminho em branco!",
+                icon="info",
+            )
+            return None
+
+        elif not os.path.isdir(data):
+            CTkMessagebox(
+                title="Info!",
+                message="Caminho inserido não é um diretório!",
+                icon="info",
+            )
+            return None
+
+        return data
+
+    # ========== BUTTONS FUNCTIONS ==========
+
     def clear_fields(self):
-        for entry in self.entries:
+        self.gui.standard_name_entry.delete(0, "end")
+        self.gui.standard_name_entry.configure(placeholder_text="Nome padrão para todos os arquivos")
+
+        placeholders_texts = [
+            "Texto a ser adicionado",
+            "Posição",
+            "Texto a ser removido",
+            "Texto a ser substituído",
+            "Texto substituto",
+            "Prefixo a ser adicionado",
+            "Sufixo a ser adicionado",
+        ]
+
+        for number, entry in enumerate(self.entries):
             entry.delete(0, "end")
+            entry.configure(placeholder_text=placeholders_texts[number])
 
     def rename_files(self):
         directory = self.get_directory()
@@ -40,14 +80,6 @@ class Core:
             return
 
         os.chdir(directory)
-
-        if self.empty_fields():
-            CTkMessagebox(
-                title="Info!",
-                message="Todas as opções de modificação estão em branco!",
-                icon="info",
-            )
-            return
 
         files = os.listdir(directory)
 
@@ -59,6 +91,99 @@ class Core:
             )
             return
 
+        if self.gui.standard_name_checkbox.get():
+            if not self.gui.standard_name_entry.get():
+                CTkMessagebox(
+                    title="Info!",
+                    message="Preencha o nome que os arquivos devem possuir!",
+                    icon="info",
+                )
+                return
+            counter = self.rename_whole_filename(files)
+        else:
+            if self.empty_fields():
+                CTkMessagebox(
+                    title="Info!",
+                    message="Todas as opções de modificação estão em branco!",
+                    icon="info",
+                )
+                return
+            counter = self.modify_current_filename(files)
+
+        CTkMessagebox(
+            title="Sucesso!",
+            message=f"{counter} arquivos renomeados com sucesso!",
+            icon="check",
+        )
+        return None
+
+    def empty_fields(self):
+        for entry in self.entries:
+            if entry.get():
+                return False
+        return True
+
+    # ========== RENAME/MODIFY FILENAME FUNCTIONS ==========
+
+    def rename_whole_filename(self, files):
+        counter = 0
+        for file in files:
+            file = Path(file)
+            new_filename = self.gui.standard_name_entry.get()
+
+            try:
+                if counter == 0:
+                    os.rename(file, new_filename + file.suffix)
+                else:
+                    os.rename(file, new_filename + f"{str(counter)}" + file.suffix)
+
+            except FileExistsError:
+                CTkMessagebox(
+                    title="Info!",
+                    message=f"Já existe um arquivo com o nome {new_filename}!",
+                    icon="info",
+                )
+                break
+
+            except PermissionError:
+                CTkMessagebox(
+                    title="Info!",
+                    message=f"Você não tem permissão para mover renomear o arquivo {file}!",
+                    icon="info",
+                )
+                break
+
+            except OSError as e:
+                if e.errno == errno.EINVAL:
+                    CTkMessagebox(
+                        title="Info!",
+                        message=f'Nome do arquivo inválido!\nCertifique-se que o nome não contenha: \ / : * ? " < > |',
+                        icon="info",
+                    )
+                    break
+
+                else:
+                    CTkMessagebox(
+                        title="Info!",
+                        message=f"Arquivo não renomeado por falha no sistema!",
+                        icon="info",
+                    )
+                    break
+
+            except Exception as e:
+                CTkMessagebox(
+                    title="Info!",
+                    message=f"Falha ao renomear o arquivo {file}!",
+                    icon="info",
+                )
+                break
+
+            else:
+                counter += 1
+
+        return counter
+
+    def modify_current_filename(self, files):
         counter = 0
         for file in files:
             file = Path(file)
@@ -83,6 +208,23 @@ class Core:
                 )
                 break
 
+            except OSError as e:
+                if e.errno == errno.EINVAL:
+                    CTkMessagebox(
+                        title="Info!",
+                        message=f'Nome do arquivo inválido!\nCertifique-se que o nome não contenha: \ / : * ? " < > |',
+                        icon="info",
+                    )
+                    break
+
+                else:
+                    CTkMessagebox(
+                        title="Info!",
+                        message=f"Arquivo não renomeado por falha no sistema!",
+                        icon="info",
+                    )
+                    break
+
             except Exception:
                 CTkMessagebox(
                     title="Info!",
@@ -94,44 +236,15 @@ class Core:
             else:
                 counter += 1
 
-        CTkMessagebox(
-            title="Info!",
-            message=f"{counter} arquivos renomeados com sucesso!",
-            icon="info",
-        )
-        return None
+        return counter
 
-    def get_directory(self):
-        data = self.gui.path_entry.get()
-
-        if not data:
-            CTkMessagebox(
-                title="Info!",
-                message="Não deixe o caminho em branco!",
-                icon="info",
-            )
-            return None
-
-        elif not os.path.isdir(data):
-            CTkMessagebox(
-                title="Info!",
-                message="Caminho inserido não é um diretório!",
-                icon="info",
-            )
-            return None
-
-        return data
-
-    def empty_fields(self):
-        for entry in self.entries:
-            if entry.get():
-                return False
-        return True
+    # ========== MODIFY FILENAMES FUNCTIONS ==========
 
     def add_modifications(self, filename):
         filename = self.remove_text(filename)
         filename = self.replace_text(filename)
         filename = self.insert_text(filename)
+        filename = self.insert_prefix_and_suffix(filename)
 
         return filename
 
@@ -161,15 +274,12 @@ class Core:
                 position_to_insert = int(position_to_insert)
 
                 if position_to_insert > len(filename):
-                    CTkMessagebox(
-                        title="Info!",
-                        message="Insira uma posição menor que o tamanho do nome do arquivo!",
-                        icon="info",
-                    )
-                    return filename
+                    position_to_insert = len(filename) - 1
 
                 if text_to_insert:
                     filename = filename[:position_to_insert] + text_to_insert + filename[position_to_insert:]
+
+                return filename
 
         except ValueError:
             CTkMessagebox(
@@ -179,6 +289,7 @@ class Core:
             )
             return filename
 
+    def insert_prefix_and_suffix(self, filename):
         prefix_to_insert = self.entries[5].get()
         suffix_to_insert = self.entries[6].get()
 
