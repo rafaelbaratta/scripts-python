@@ -3,6 +3,7 @@ import os
 import qrcode
 from CTkMessagebox import CTkMessagebox
 from customtkinter import CTkImage, filedialog
+from PIL import Image
 
 
 class Core:
@@ -11,9 +12,25 @@ class Core:
         self.gui = gui
         self.img = None
 
+        self.configure_buttons()
+
+    # ========== STARTING APP FUNCTION ==========
+
+    def configure_buttons(self):
         self.gui.file_button.configure(command=self.get_path)
         self.gui.generate_button.configure(command=self.generate_code)
+        self.gui.clean_button.configure(command=self.clean_everything)
         self.gui.save_button.configure(command=self.save_code)
+
+        self.gui.qr_code_size_slider.configure(command=self.print_qr_code_size)
+        self.print_qr_code_size(self.gui.qr_code_size_slider.get())
+
+    # ========== QR CODE SIZE FUNCTIONS ==========
+
+    def print_qr_code_size(self, value):
+        self.gui.qr_code_size_value.configure(text=f"Tamanho da Imagem: ({int(value)})")
+
+    # ========== GENERATE CODE FUNCTIONS ==========
 
     def get_path(self):
         file_path = filedialog.askopenfilename(filetypes=[("Arquivos texto", "*.txt")])
@@ -40,11 +57,17 @@ class Core:
                 return
             self.img = qrcode.make(data[:2100])
 
+        self.img_size = int(self.gui.qr_code_size_slider.get())
+        self.img = self.img.resize((self.img_size, self.img_size), Image.Resampling.NEAREST)
+
         converted_img = self.img.convert("RGB")
 
-        ctk_img = CTkImage(light_image=converted_img, dark_image=converted_img, size=(220, 220))
-        self.gui.code_label.configure(image=ctk_img)
-        self.gui.code_label.configure(text="")
+        ctk_img = CTkImage(
+            light_image=converted_img,
+            dark_image=converted_img,
+            size=(self.img_size, self.img_size),
+        )
+        self.gui.code_label.configure(image=ctk_img, text="")
 
         self.gui.save_button.configure(
             state="normal",
@@ -53,7 +76,6 @@ class Core:
         )
 
     def get_file_content(self, file_path):
-
         try:
             with open(file_path, "r", encoding="utf-8") as file:
                 return file.read()
@@ -95,10 +117,11 @@ class Core:
 
         elif os.path.isfile(data):
             file_content = self.get_file_content(data)
-
             data = file_content
 
         return data
+
+    # ========== SAVE CODE FUNCTION ==========
 
     def save_code(self):
         if not self.img:
@@ -116,3 +139,16 @@ class Core:
 
         if file_path:
             self.img.save(file_path)
+
+    # ========== CLEAN FIELDS FUNCTION ==========
+
+    def clean_everything(self):
+        self.gui.text_entry.delete(0, "end")
+        self.gui.text_entry.configure(placeholder_text="Digite ou insira o conteúdo...")
+
+        if self.img is not None:
+            self.img = None
+            self.gui.code_label.configure(image=self.img, text="Código a ser gerado...")
+
+        self.gui.save_button.configure(state="disabled", fg_color=self.gui.COLORS["primary_bg"])
+        self.gui.save_button.configure(state="disabled", fg_color=self.gui.COLORS["primary_bg"])
