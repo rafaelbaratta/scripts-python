@@ -23,6 +23,7 @@ class Gui(ctk.CTk):
             "button": ("Arial", 16, "bold"),
         }
 
+        self.pady = 5
         self.height = 40
         self.checkbox_size = 20
         self.checkbox_border = 2
@@ -34,30 +35,21 @@ class Gui(ctk.CTk):
         self.geometry("500x560")
         self.resizable(False, False)
 
-        title_container = ctk.CTkFrame(self, fg_color=self.COLORS["secondary_bg"])
-        title_container.pack(fill="x", pady=10, padx=10)
+        self.build_directory_section()
+        self.build_organize_files_section()
+        self.build_others_option_section()
+        self.build_buttons_section()
 
-        ctk.CTkLabel(
-            title_container,
-            text="Organizador de Pastas",
-            font=self.FONTS["title"],
-            text_color=self.COLORS["text"],
-        ).pack(pady=15)
-
-        content_container = ctk.CTkFrame(self, fg_color=self.COLORS["primary_bg"])
-        content_container.pack(fill="both")
-
-        entry_container = ctk.CTkFrame(
-            content_container, fg_color=self.COLORS["secondary_bg"]
-        )
-        entry_container.pack(fill="x", pady=10, padx=10)
+    def build_directory_section(self):
+        entry_container = ctk.CTkFrame(self, fg_color=self.COLORS["secondary_bg"])
+        entry_container.pack(fill="x", pady=self.pady, padx=10)
 
         ctk.CTkLabel(
             entry_container,
             text="Insira ou procure o caminho da pasta/diretório:",
             font=self.FONTS["text"],
             text_color=self.COLORS["text"],
-        ).pack(pady=10, padx=30)
+        ).pack(pady=self.pady, padx=30)
 
         self.text_entry = ctk.CTkEntry(
             entry_container,
@@ -66,7 +58,7 @@ class Gui(ctk.CTk):
             font=self.FONTS["text"],
             text_color=self.COLORS["text"],
         )
-        self.text_entry.pack(side="left", pady=(10, 20), padx=(20, 0))
+        self.text_entry.pack(side="left", pady=self.pady, padx=(20, 0))
 
         self.directory_button = ctk.CTkButton(
             entry_container,
@@ -78,12 +70,11 @@ class Gui(ctk.CTk):
             fg_color=self.COLORS["button"],
             hover_color=self.COLORS["button_hover"],
         )
-        self.directory_button.pack(side="right", pady=(10, 20), padx=(0, 20))
+        self.directory_button.pack(side="right", pady=self.pady, padx=(0, 20))
 
-        options_container = ctk.CTkFrame(
-            content_container, fg_color=self.COLORS["secondary_bg"]
-        )
-        options_container.pack(fill="both", pady=10, padx=10)
+    def build_organize_files_section(self):
+        options_container = ctk.CTkFrame(self, fg_color=self.COLORS["secondary_bg"])
+        options_container.pack(fill="both", pady=self.pady, padx=10)
 
         options_container.grid_columnconfigure(0, weight=1)
         options_container.grid_columnconfigure(1, weight=1)
@@ -93,7 +84,7 @@ class Gui(ctk.CTk):
             text="Escolha a configuração de pastas:",
             font=self.FONTS["text"],
             text_color=self.COLORS["text"],
-        ).grid(row=0, column=0, columnspan=2, pady=10, padx=30)
+        ).grid(row=0, column=0, columnspan=2, pady=self.pady, padx=30)
 
         self.documents_checkbox = ctk.CTkCheckBox(
             options_container,
@@ -106,9 +97,7 @@ class Gui(ctk.CTk):
             fg_color=self.COLORS["button"],
             hover_color=self.COLORS["button_hover"],
         )
-        self.documents_checkbox.grid(
-            row=1, column=0, pady=5, padx=(20, 0), sticky="nsew"
-        )
+        self.documents_checkbox.grid(row=1, column=0, pady=self.pady, padx=(20, 0), sticky="nsew")
         self.documents_checkbox.select()
 
         self.images_checkbox = ctk.CTkCheckBox(
@@ -122,7 +111,7 @@ class Gui(ctk.CTk):
             fg_color=self.COLORS["button"],
             hover_color=self.COLORS["button_hover"],
         )
-        self.images_checkbox.grid(row=1, column=1, pady=5, padx=(0, 20), sticky="nsew")
+        self.images_checkbox.grid(row=1, column=1, pady=self.pady, padx=(0, 20), sticky="nsew")
         self.images_checkbox.select()
 
         self.audios_checkbox = ctk.CTkCheckBox(
@@ -136,7 +125,7 @@ class Gui(ctk.CTk):
             fg_color=self.COLORS["button"],
             hover_color=self.COLORS["button_hover"],
         )
-        self.audios_checkbox.grid(row=2, column=0, pady=5, padx=(20, 0), sticky="nsew")
+        self.audios_checkbox.grid(row=2, column=0, pady=self.pady, padx=(20, 0), sticky="nsew")
         self.audios_checkbox.select()
 
         self.videos_checkbox = ctk.CTkCheckBox(
@@ -150,7 +139,7 @@ class Gui(ctk.CTk):
             fg_color=self.COLORS["button"],
             hover_color=self.COLORS["button_hover"],
         )
-        self.videos_checkbox.grid(row=2, column=1, pady=5, padx=(0, 20), sticky="nsew")
+        self.videos_checkbox.grid(row=2, column=1, pady=self.pady, padx=(0, 20), sticky="nsew")
         self.videos_checkbox.select()
 
         self.binary_checkbox = ctk.CTkCheckBox(
@@ -164,7 +153,7 @@ class Gui(ctk.CTk):
             fg_color=self.COLORS["button"],
             hover_color=self.COLORS["button_hover"],
         )
-        self.binary_checkbox.grid(row=3, column=0, pady=5, padx=(20, 0), sticky="nsew")
+        self.binary_checkbox.grid(row=3, column=0, pady=self.pady, padx=(20, 0), sticky="nsew")
 
         self.compacted_checkbox = ctk.CTkCheckBox(
             options_container,
@@ -177,9 +166,7 @@ class Gui(ctk.CTk):
             fg_color=self.COLORS["button"],
             hover_color=self.COLORS["button_hover"],
         )
-        self.compacted_checkbox.grid(
-            row=3, column=1, pady=5, padx=(0, 20), sticky="nsew"
-        )
+        self.compacted_checkbox.grid(row=3, column=1, pady=self.pady, padx=(0, 20), sticky="nsew")
 
         self.data_checkbox = ctk.CTkCheckBox(
             options_container,
@@ -192,7 +179,7 @@ class Gui(ctk.CTk):
             fg_color=self.COLORS["button"],
             hover_color=self.COLORS["button_hover"],
         )
-        self.data_checkbox.grid(row=4, column=0, pady=5, padx=(20, 0), sticky="nsew")
+        self.data_checkbox.grid(row=4, column=0, pady=self.pady, padx=(20, 0), sticky="nsew")
 
         self.programming_checkbox = ctk.CTkCheckBox(
             options_container,
@@ -205,19 +192,78 @@ class Gui(ctk.CTk):
             fg_color=self.COLORS["button"],
             hover_color=self.COLORS["button_hover"],
         )
-        self.programming_checkbox.grid(
-            row=4, column=1, pady=5, padx=(0, 20), sticky="nsew"
-        )
+        self.programming_checkbox.grid(row=4, column=1, pady=self.pady, padx=(0, 20), sticky="nsew")
+
+    def build_others_option_section(self):
+        other_container = ctk.CTkFrame(self, fg_color=self.COLORS["secondary_bg"])
+        other_container.pack(fill="x", pady=self.pady, padx=10)
 
         ctk.CTkLabel(
-            options_container,
-            text="(Outros tipos de arquivos estarão na pasta 'Outros')",
+            other_container,
+            text="Pasta Outros",
             font=self.FONTS["text"],
             text_color=self.COLORS["text"],
-        ).grid(row=5, column=0, columnspan=2, pady=10, padx=30)
+        ).pack(pady=self.pady, padx=30)
+
+        self.others_checkbox = ctk.CTkCheckBox(
+            other_container,
+            checkbox_width=self.checkbox_size,
+            checkbox_height=self.checkbox_size,
+            border_width=self.checkbox_border,
+            text="Criar Pasta Outros?",
+            font=self.FONTS["text"],
+            text_color=self.COLORS["text"],
+            fg_color=self.COLORS["button"],
+            hover_color=self.COLORS["button_hover"],
+        )
+        self.others_checkbox.pack(pady=self.pady, padx=20)
+        self.others_checkbox.select()
+
+        ctk.CTkLabel(
+            other_container,
+            text="Se selecionado:",
+            font=self.FONTS["text"],
+            text_color=self.COLORS["text"],
+        ).pack(pady=(self.pady, 0), padx=30, anchor="w")
+
+        ctk.CTkLabel(
+            other_container,
+            text="Conterá todos os arquivos que não se encaixam nas categorias",
+            font=self.FONTS["text"],
+            text_color=self.COLORS["text"],
+        ).pack(padx=30, anchor="w")
+
+        ctk.CTkLabel(
+            other_container,
+            text="Se não selecionado:",
+            font=self.FONTS["text"],
+            text_color=self.COLORS["text"],
+        ).pack(pady=(self.pady, 0), padx=30, anchor="w")
+
+        ctk.CTkLabel(
+            other_container,
+            text="Os arquivos estarão no seu local de origem",
+            font=self.FONTS["text"],
+            text_color=self.COLORS["text"],
+        ).pack(padx=30, anchor="w")
+
+    def build_buttons_section(self):
+        buttons_container = ctk.CTkFrame(self, fg_color=self.COLORS["primary_bg"])
+        buttons_container.pack(fill="x", pady=self.pady, padx=10)
+
+        self.select_all_button = ctk.CTkButton(
+            buttons_container,
+            height=self.height,
+            text="Selecionar Todos",
+            font=self.FONTS["button"],
+            text_color=self.COLORS["button_text"],
+            fg_color=self.COLORS["button"],
+            hover_color=self.COLORS["button_hover"],
+        )
+        self.select_all_button.grid(row=0, column=0, pady=self.pady, padx=10)
 
         self.generate_button = ctk.CTkButton(
-            content_container,
+            buttons_container,
             height=self.height,
             text="Organizar Pasta",
             font=self.FONTS["button"],
@@ -225,4 +271,15 @@ class Gui(ctk.CTk):
             fg_color=self.COLORS["button"],
             hover_color=self.COLORS["button_hover"],
         )
-        self.generate_button.pack(pady=10)
+        self.generate_button.grid(row=0, column=1, pady=self.pady, padx=10)
+
+        self.clear_selection_button = ctk.CTkButton(
+            buttons_container,
+            height=self.height,
+            text="Limpar Seleção",
+            font=self.FONTS["button"],
+            text_color=self.COLORS["button_text"],
+            fg_color=self.COLORS["button"],
+            hover_color=self.COLORS["button_hover"],
+        )
+        self.clear_selection_button.grid(row=0, column=2, pady=self.pady, padx=10)

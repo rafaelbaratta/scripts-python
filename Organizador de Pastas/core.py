@@ -109,14 +109,46 @@ class Core:
                 "pas",
             ],
         }
+        self.configure_buttons()
 
+    # ========== STARTING APP FUNCTIONS ==========
+
+    def configure_buttons(self):
         self.gui.directory_button.configure(command=self.get_path)
+
+        self.gui.select_all_button.configure(command=self.select_all)
         self.gui.generate_button.configure(command=self.organize)
+        self.gui.clear_selection_button.configure(command=self.clear_selection)
+
+    # ========== PATH/DIRECTORY FUNCTIONS ==========
 
     def get_path(self):
         directory_path = filedialog.askdirectory()
         self.gui.text_entry.delete(0, "end")
         self.gui.text_entry.insert(0, directory_path)
+
+    def get_directory(self):
+        data = self.gui.text_entry.get()
+
+        if not data:
+            CTkMessagebox(
+                title="Info!",
+                message="Não deixe o campo em branco!",
+                icon="info",
+            )
+            return None
+
+        elif not os.path.isdir(data):
+            CTkMessagebox(
+                title="Info!",
+                message="Caminho inserido não é um diretório!",
+                icon="info",
+            )
+            return None
+
+        return data
+
+    # ========== MOVE/ORGANIZE FILES FUNCTIONS ==========
 
     def organize(self):
         directory = self.get_directory()
@@ -126,9 +158,9 @@ class Core:
 
         os.chdir(directory)
 
-        selected_extensions = self.get_selected_checkboxes()
+        selected_extensions, selected_others = self.get_selected_checkboxes()
 
-        if not selected_extensions:
+        if selected_extensions is None:
             return
 
         files = os.listdir(directory)
@@ -159,12 +191,13 @@ class Core:
                     break
 
             else:
-                try:
-                    os.mkdir("Outros")
-                except FileExistsError:
-                    pass
-                if self.move_file(directory, file, f"{directory}/Outros"):
-                    counter += 1
+                if selected_others:
+                    try:
+                        os.mkdir("Outros")
+                    except FileExistsError:
+                        pass
+                    if self.move_file(directory, file, f"{directory}/Outros"):
+                        counter += 1
 
         CTkMessagebox(
             title="Info!",
@@ -204,27 +237,6 @@ class Core:
             )
             return False
 
-    def get_directory(self):
-        data = self.gui.text_entry.get()
-
-        if not data:
-            CTkMessagebox(
-                title="Info!",
-                message="Não deixe o campo em branco!",
-                icon="info",
-            )
-            return None
-
-        elif not os.path.isdir(data):
-            CTkMessagebox(
-                title="Info!",
-                message="Caminho inserido não é um diretório!",
-                icon="info",
-            )
-            return None
-
-        return data
-
     def get_selected_checkboxes(self):
         selected_extensions = dict()
 
@@ -258,6 +270,32 @@ class Core:
                 message="Você deve selecionar, no mínimo, uma categoria!",
                 icon="info",
             )
-            return None
+            return None, None
 
-        return selected_extensions
+        selected_others = self.gui.others_checkbox.get()
+
+        return selected_extensions, selected_others
+
+    # ========== SELECTION CONTROL FUNCTIONS ==========
+
+    def select_all(self):
+        self.gui.documents_checkbox.select()
+        self.gui.images_checkbox.select()
+        self.gui.audios_checkbox.select()
+        self.gui.videos_checkbox.select()
+        self.gui.binary_checkbox.select()
+        self.gui.compacted_checkbox.select()
+        self.gui.data_checkbox.select()
+        self.gui.programming_checkbox.select()
+        self.gui.others_checkbox.select()
+
+    def clear_selection(self):
+        self.gui.documents_checkbox.deselect()
+        self.gui.images_checkbox.deselect()
+        self.gui.audios_checkbox.deselect()
+        self.gui.videos_checkbox.deselect()
+        self.gui.binary_checkbox.deselect()
+        self.gui.compacted_checkbox.deselect()
+        self.gui.data_checkbox.deselect()
+        self.gui.programming_checkbox.deselect()
+        self.gui.others_checkbox.deselect()
