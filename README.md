@@ -8,10 +8,10 @@ Cada script está organizado em sua própria pasta e pode ser executado de forma
 ## 🛠️ Tecnologias
 
 - Python 3
-- PyAutoGUI
-- Pynput
-- Pillow
-- CustomTkinter
+- PyAutoGUI (controle de inputs de teclado e mouse)
+- Pynput (controle de inputs de teclado e mouse)
+- Pillow (controle de imagens)
+- CustomTkinter (interface gráfica)
 
 ## 📁 Estrutura do Repositório
 
